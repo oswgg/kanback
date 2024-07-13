@@ -1,0 +1,26 @@
+model User {
+    id                Int      @id @default(autoincrement())
+    organization_uuid String
+    username          String   @db.VarChar(50)
+    first_name        String   @db.VarChar(50)
+    last_name         String   @db.VarChar(50)
+    email             String
+    age               Int?
+    sex               Int?     @db.UnsignedTinyInt()
+    role              OrgRole
+    language          Language @default(en)
+    image_url         String?
+    created_at        DateTime @default(now())
+
+    organization Organization @relation(fields: [organization_uuid], references: [uuid])
+}
+
+enum Language {
+    es
+    en
+}
+
+enum OrgRole {
+    admin
+    member
+}
