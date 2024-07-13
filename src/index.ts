@@ -1,14 +1,15 @@
-import express, { Express, Request, Response } from "express";
-import dotenv from "dotenv";
+import express from "express";
+import config from './config'
+import loaders from './loaders'
 
-dotenv.config(); // Load environment variables from .env file
+async function startServer() {
+    const app = express();
 
-const app = express();
-const port = process.env.PORT;
-app.get("/", (req: Request, res: Response) => {
-  res.send("HELLO WORLD");
-});
+    await loaders({ expressApp: app })
 
-app.listen(port, () => {
-  console.log(`Server is running on port ${port}`);
-});
+    app.listen(config.port, () => {
+        console.log(`\n    🛡️  Server listening on port: ${config.port} 🛡️\n`)
+    });
+}
+
+startServer();
