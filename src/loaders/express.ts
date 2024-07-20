@@ -1,6 +1,7 @@
 import express from 'express';
 import morgan from 'morgan';
 import apiRoutes from './routes'
+import ErrorHandlerMiddleware from '../utils/middlewares/ErrorHandler';
 
 export default ({ app }: { app: express.Application }) => {
 
@@ -9,6 +10,8 @@ export default ({ app }: { app: express.Application }) => {
 
     app.use('/api', apiRoutes())
 
+
+    app.use(ErrorHandlerMiddleware)
 
 
     console.log(" \n             Now using json parse")

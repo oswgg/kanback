@@ -3,7 +3,7 @@ const router = Router()
 
 import userController from './controller/userController'
 
-import { SchemaValidation } from '../../utils/middlewares/SchemaValidationMiddleware'
+import { SchemaValidation } from '../../utils/middlewares/SchemaValidation'
 import signupSchema from './schemas/signup'
 
 export default (app: Router) => {
