@@ -1,8 +1,8 @@
 import { Request, RequestHandler, Response, NextFunction } from 'express'
 import { SchemaErrorList } from '../interfaces/SchemaInterface'
+import { ERROR_TYPE_DICTIONARY } from '../dictionaries/ErrorDictionary'
 import { SCHEMA_DICIONARY } from '../dictionaries/SchemaDictionary'
 import { CustomError } from './ErrorHandler'
-import { ERROR_TYPE_DICTIONARY } from '../dictionaries/ErrorDictionary'
 import Joi from 'joi'
 
 export function SchemaValidation(schema: Joi.Schema): RequestHandler {
@@ -22,6 +22,7 @@ export function SchemaValidation(schema: Joi.Schema): RequestHandler {
                         return {
                             type: SCHEMA_DICIONARY[e.type],
                             field: e.context.key,
+                            message: e.message
                         }
                     })
                 }

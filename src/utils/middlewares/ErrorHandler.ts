@@ -6,7 +6,7 @@ export class CustomError extends Error {
     type: ErrorType
     content: any
 
-    constructor(message: string, statusCode: number, type: ErrorType, content: any) {
+    constructor(message: string, statusCode: number = 500, type: ErrorType = 'UnknownError', content: any) {
         super(message)
         this.statusCode = statusCode
         this.type = type
@@ -17,12 +17,18 @@ export class CustomError extends Error {
     }
 }
 
-const errorHandler = (error: CustomError, req: Request, res: Response, next: NextFunction) => {
-    return res.status(error.statusCode).json({
+const errorHandler = (error: CustomError | Error, req: Request, res: Response, next: NextFunction) => {
+    const isCustom = error instanceof CustomError
+
+    const statusCode = isCustom ? error.statusCode : 500
+    const errorType = isCustom ? error.type : 'UnknownError'
+    const errorContent = isCustom ? error.content : error.message
+
+    return res.status(statusCode || 500).json({
         ok: false,
         error: {
-            type: error.type,
-            content: error.content
+            type: errorType,
+            content: errorContent
         }
     })
 }

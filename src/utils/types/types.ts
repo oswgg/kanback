@@ -1,4 +1,4 @@
-export type SchemaValidationError = 'Required'
+export type SchemaValidationError = 'Required' | 'Not Valid'
 
 export interface SchemaValidationDictionary {
     [key: string]: SchemaValidationError
