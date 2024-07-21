@@ -1,11 +1,17 @@
 import { NextFunction, Request, Response } from 'express'
 import { CustomError } from '../../../utils/middlewares/ErrorHandler'
-import { ERROR_TYPE_DICTIONARY } from '../../../utils/dictionaries/ErrorDictionary'
+import UserService from '../services/userService'
 
 export default {
-    signup: (req: Request, res: Response, next: NextFunction) => {
+    signup: async (req: Request, res: Response, next: NextFunction) => {
         try {
-            throw { message: "error" }
+            const { body } = req
+            const result = await UserService.signUp(body)
+
+            return res.status(200).json({
+                ok: true,
+                data: result
+            })
         } catch (err: any) {
             if (err instanceof CustomError)
                 return next(err)

@@ -4,8 +4,9 @@ model User {
     username          String   @db.VarChar(50)
     first_name        String   @db.VarChar(50)
     last_name         String   @db.VarChar(50)
-    email             String
-    age               Int?
+    email             String   @unique
+    password          String
+    age               Int?     @db.UnsignedInt
     sex               Int?     @db.UnsignedTinyInt()
     role              OrgRole
     language          Language @default(en)
@@ -21,6 +22,7 @@ enum Language {
 }
 
 enum OrgRole {
+    none
     admin
     member
 }
