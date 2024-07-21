@@ -5,10 +5,12 @@ import { ERROR_TYPE_DICTIONARY } from '../../../utils/dictionaries/ErrorDictiona
 export default {
     signup: (req: Request, res: Response, next: NextFunction) => {
         try {
-            throw new CustomError("error", 404, ERROR_TYPE_DICTIONARY.PAYLOAD, "aaa")
             throw { message: "error" }
-        } catch (err) {
-            return next(err)
+        } catch (err: any) {
+            if (err instanceof CustomError)
+                return next(err)
+
+            return next(new CustomError(err.message))
         }
     },
 
