@@ -1,8 +1,8 @@
 import { $Enums, PrismaClient } from '@prisma/client'
 const prisma = new PrismaClient()
-import UserSignup from '../schemas/signup'
+import { UserSignup } from '../schemas/signup'
 import { CustomError } from '../../../utils/middlewares/ErrorHandler'
-import DuplicateError from '../../../utils/interfaces/ErrorInterfaces'
+import { DuplicateError } from '../../../utils/interfaces/ErrorInterfaces'
 
 export default class UserService {
 
@@ -40,7 +40,14 @@ export default class UserService {
         } catch (err) {
             throw err
         }
-
     }
 
+    static findOneBy(where: any) {
+        return prisma.user.findMany({ where })
+    }
+
+    static isValidPassword(userRegPass: string, givenPass: string): boolean {
+
+        return userRegPass === givenPass
+    }
 }

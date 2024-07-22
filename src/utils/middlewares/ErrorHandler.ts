@@ -20,7 +20,6 @@ export class CustomError extends Error {
 
 const errorHandler = (error: CustomError, req: Request, res: Response, next: NextFunction) => {
 
-    console.log(error)
     return res.status(error.statusCode).json({
         ok: false,
         error: {

@@ -1,6 +1,7 @@
 import express from "express";
 import config from './config'
 import loaders from './loaders'
+require('./utils/auth/auth')
 
 async function startServer() {
     const app = express();

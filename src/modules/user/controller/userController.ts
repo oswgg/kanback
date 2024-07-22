@@ -20,7 +20,7 @@ export default {
         }
     },
 
-    auth: (req: Request, res: Response) => {
+    login: (req: Request, res: Response) => {
         console.log("Autentificando ahora")
     },
 

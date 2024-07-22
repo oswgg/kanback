@@ -1,11 +1,20 @@
 import { Router } from 'express'
 const router = Router()
+import passport from 'passport'
 
+// ----------- MIDDLEWARES ---------
+import SchemaValidation from '../../utils/middlewares/SchemaValidation'
+import CheckCredentials from '../../utils/middlewares/CheckCredentials'
+
+// ----------- CONTROLLER ----------
 import userController from './controller/userController'
 
-import { SchemaValidation } from '../../utils/middlewares/SchemaValidation'
+// ---------- SCHEMAS ------------
 import signupSchema from './schemas/signup'
+import loginSchema from './schemas/login'
 
+
+// ----------- ROUTES -------------
 export default (app: Router) => {
     app.use('/users', router)
 
@@ -15,4 +24,10 @@ export default (app: Router) => {
         userController.signup
     )
 
+
+    router.post(
+        '/login',
+        SchemaValidation(loginSchema), // Validate request body against the schema
+        CheckCredentials,
+    )
 }

@@ -3,7 +3,7 @@ import { SchemaErrorList } from '../interfaces/SchemaInterface'
 import { CustomError } from './ErrorHandler'
 import Joi from 'joi'
 
-export function SchemaValidation(schema: Joi.Schema): RequestHandler {
+const SchemaValidation = (schema: Joi.Schema): RequestHandler => {
     return (req: Request, res: Response, next: NextFunction) => {
         try {
             const { value, error } = schema.validate(req.body, { abortEarly: false })
@@ -32,3 +32,5 @@ export function SchemaValidation(schema: Joi.Schema): RequestHandler {
     }
 
 }
+
+export default SchemaValidation

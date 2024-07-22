@@ -10,6 +10,7 @@ export default _.object({
     age: _.number().integer().positive(),
     sex: _.number().integer().positive(),
     password: _pass.string()
+        .min(8)
         .minOfSpecialCharacters(1)
         .minOfLowercase(1)
         .minOfUppercase(1)
@@ -20,7 +21,7 @@ export default _.object({
 }).unknown(false)
 
 
-export default interface UserSignup {
+export interface UserSignup {
     username: string,
     first_name: string,
     last_name: string,
