@@ -1,5 +1,6 @@
 import { $Enums, PrismaClient } from '@prisma/client'
 const prisma = new PrismaClient()
+import bcrypt from 'bcrypt'
 import { UserSignup } from '../schemas/signup'
 import { CustomError } from '../../../utils/middlewares/ErrorHandler'
 import { DuplicateError } from '../../../utils/interfaces/ErrorInterfaces'
@@ -23,12 +24,14 @@ export default class UserService {
                 throw new CustomError('Cannot create User', 403, 'DuplicateError', duplicateContent)
             }
 
+            const hashedPassword = UserService.hashPassword(password)
+
             const infoToCreateUser = {
                 username,
                 email,
                 first_name,
                 last_name,
-                password,
+                password: hashedPassword,
                 age,
                 sex,
                 role: $Enums.OrgRole.none
@@ -46,8 +49,12 @@ export default class UserService {
         return prisma.user.findMany({ where })
     }
 
-    static isValidPassword(userRegPass: string, givenPass: string): boolean {
 
-        return userRegPass === givenPass
+    static hashPassword(password: string) {
+        const salt = bcrypt.genSaltSync(10)
+        return bcrypt.hashSync(password, salt)
     }
+
+    static isValidPassword = (userRegPass: string, givenPass: string): boolean => bcrypt.compareSync(givenPass, userRegPass)
+
 }

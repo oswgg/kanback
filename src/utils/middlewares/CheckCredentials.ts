@@ -17,7 +17,7 @@ const CheckCredentials = (req: Request, res: Response, next: NextFunction) => {
                 delete user.password
                 const token = jwt.sign({ user }, config.jwt_secret as string)
 
-                return res.json({ token })
+                return res.json({ ok: true, content: { user, token } })
             })
 
 

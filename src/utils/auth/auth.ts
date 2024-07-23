@@ -21,7 +21,6 @@ export const loginAuth = passport.use('login',
                     return done(new CustomError('User not found', 401, 'NotFoundError', notFoundUser), false)
                 }
 
-
                 const isValidPassword: boolean = UserService.isValidPassword(user.password, password)
 
                 if (!isValidPassword) {
