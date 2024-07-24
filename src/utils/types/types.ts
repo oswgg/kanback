@@ -1,5 +1,3 @@
-export type ErrorType = 'PayloadError' | 'UnknownError' | 'DuplicateError' | 'NotFoundError' | 'AuthorizationError'
+export type ErrorType =
+    'PayloadError' | 'UnknownError' | 'DuplicateError' | 'NotFoundError' | 'AuthorizationError' | 'JWTExpiredError' | 'JWTInvalidError'
 
-export interface ErrorTypeDictionary {
-    [key: string]: ErrorType
-}

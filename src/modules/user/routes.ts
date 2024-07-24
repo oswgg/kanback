@@ -5,6 +5,7 @@ import passport from 'passport'
 // ----------- MIDDLEWARES ---------
 import SchemaValidation from '../../utils/middlewares/SchemaValidation'
 import CheckCredentials from '../../utils/middlewares/CheckCredentials'
+import AuthorizationMiddleware from '../../utils/middlewares/AuthorizationMiddleware'
 
 // ----------- CONTROLLER ----------
 import userController from './controller/userController'
@@ -30,4 +31,12 @@ export default (app: Router) => {
         SchemaValidation(loginSchema), // Validate request body against the schema
         CheckCredentials,
     )
+
+
+    router.get(
+        '/me',
+        AuthorizationMiddleware,
+        userController.getMe
+    )
+
 }

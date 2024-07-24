@@ -14,9 +14,9 @@ const CheckCredentials = (req: Request, res: Response, next: NextFunction) => {
                 if (err)
                     throw err
 
-                delete user.password
-                const token = jwt.sign({ user }, config.jwt_secret as string)
+                const token = jwt.sign({ user }, config.jwt_secret as string, { expiresIn: config.jwt_expiration })
 
+                delete user.password
                 return res.json({ ok: true, content: { user, token } })
             })
 

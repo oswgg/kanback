@@ -3,7 +3,7 @@ const prisma = new PrismaClient()
 import bcrypt from 'bcrypt'
 import { UserSignup } from '../schemas/signup'
 import { CustomError } from '../../../utils/middlewares/ErrorHandler'
-import { DuplicateError } from '../../../utils/interfaces/ErrorInterfaces'
+import { ModelError } from '../../../utils/interfaces/ErrorInterfaces'
 
 export default class UserService {
 
@@ -14,7 +14,7 @@ export default class UserService {
             const existingEmailUser = await prisma.user.findUnique({ where: { email } })
 
             if (existingEmailUser) {
-                const duplicateContent: DuplicateError = {
+                const duplicateContent: ModelError = {
                     model: 'User',
                     message: 'User with this email already exists',
                     props: {

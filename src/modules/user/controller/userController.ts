@@ -10,7 +10,7 @@ export default {
 
             return res.status(200).json({
                 ok: true,
-                data: result
+                content: result
             })
         } catch (err: any) {
             if (err instanceof CustomError)
@@ -20,8 +20,11 @@ export default {
         }
     },
 
-    login: (req: Request, res: Response) => {
-        console.log("Autentificando ahora")
+    getMe: (req: Request, res: Response) => {
+        return res.json({
+            ok: true,
+            data: req.user
+        })
     },
 
 
