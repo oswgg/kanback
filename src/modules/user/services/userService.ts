@@ -1,17 +1,17 @@
 import { $Enums, PrismaClient } from '@prisma/client'
-const prisma = new PrismaClient()
 import bcrypt from 'bcrypt'
 import { UserSignup } from '../schemas/signup'
 import { CustomError } from '../../../utils/middlewares/ErrorHandler'
 import { ModelError } from '../../../utils/interfaces/ErrorInterfaces'
 
+const db = new PrismaClient().user
 export default class UserService {
 
     static async signUp(data: UserSignup) {
         try {
             const { username, email, first_name, last_name, age, sex, password, password_confirmation } = data
 
-            const existingEmailUser = await prisma.user.findUnique({ where: { email } })
+            const existingEmailUser = await db.findUnique({ where: { email } })
 
             if (existingEmailUser) {
                 const duplicateContent: ModelError = {
@@ -37,7 +37,7 @@ export default class UserService {
                 role: $Enums.OrgRole.none
             }
 
-            const userCreated = await prisma.user.create({ data: infoToCreateUser })
+            const userCreated = await db.create({ data: infoToCreateUser })
 
             return userCreated
         } catch (err) {
@@ -45,8 +45,12 @@ export default class UserService {
         }
     }
 
-    static findOneBy(where: any) {
-        return prisma.user.findMany({ where })
+    static createOrganization = async (id: number, organization_uuid: string) =>
+        await db.update({ where: { id }, data: { organization_uuid, role: $Enums.OrgRole.admin } })
+
+
+    static async findOneBy(where: any) {
+        return await db.findUnique({ where })
     }
 
 

@@ -26,6 +26,7 @@ const AuthorizationMiddleware = (req: Request, res: Response, next: NextFunction
             if (err || !user)
                 throw err
 
+            delete user.password
             req.user = user
             next()
         } catch (err: any) {

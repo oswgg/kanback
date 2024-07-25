@@ -21,7 +21,7 @@ export default {
     },
 
     getMe: (req: Request, res: Response) => {
-        return res.json({
+        return res.status(200).json({
             ok: true,
             data: req.user
         })

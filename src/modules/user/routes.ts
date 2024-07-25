@@ -1,6 +1,5 @@
 import { Router } from 'express'
 const router = Router()
-import passport from 'passport'
 
 // ----------- MIDDLEWARES ---------
 import SchemaValidation from '../../utils/middlewares/SchemaValidation'

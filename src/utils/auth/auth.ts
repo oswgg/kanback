@@ -5,12 +5,13 @@ import { CustomError } from '../middlewares/ErrorHandler'
 import { ModelError } from '../interfaces/ErrorInterfaces'
 import UserService from '../../modules/user/services/userService'
 import config from '../../config'
+import { User } from '@prisma/client'
 
 passport.use('login',
     new Strategy({ usernameField: 'email', passwordField: 'password' },
         async (email, password, done) => {
             try {
-                const [user] = await UserService.findOneBy({ email })
+                const user = await UserService.findOneBy({ email })
 
                 if (!user) {
                     const notFoundUser: ModelError = {
@@ -54,7 +55,7 @@ const optsForJwt: StrategyOptionsWithoutRequest = {
 passport.use("jwt_auth",
     new JWT_Strategy(optsForJwt, async (jwt_payload: any, done: any) => {
         try {
-            const [user] = await UserService.findOneBy({ id: jwt_payload.id })
+            const user = await UserService.findOneBy({ id: jwt_payload.user.id })
 
             if (!user) {
                 const notFoundUser: ModelError = {
