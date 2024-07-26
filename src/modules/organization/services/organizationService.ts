@@ -1,10 +1,13 @@
-import { Request } from "express";
-import { $Enums, PrismaClient, User } from "@prisma/client";
+import { $Enums, OrgInvitationCodes, PrismaClient, User } from "@prisma/client";
+import { DuplicatedError, ForbbidenError } from "../../../utils/interfaces/ErrorInterfaces";
 import { CustomError } from "../../../utils/middlewares/ErrorHandler";
-import { DuplicatedError, ForbbidenError, ErrorInterface } from "../../../utils/interfaces/ErrorInterfaces";
 import organizationEvents from "../events/organizationEvents"
+import { generateRandomString } from "../../../utils/helpers";
 
-const db = new PrismaClient().organization
+const prisma = new PrismaClient();
+
+const Organization = prisma.organization
+const Invitation = prisma.orgInvitationCodes
 
 export default class OrganizationService {
 
@@ -27,7 +30,7 @@ export default class OrganizationService {
                 throw new CustomError(relationError)
             }
 
-            const newOrganization = await db.create({ data: body })
+            const newOrganization = await Organization.create({ data: body })
 
             organizationEvents.emit('OrganizationCreated', [user.id, newOrganization.uuid])
 
@@ -38,13 +41,13 @@ export default class OrganizationService {
     }
 
 
-    static createInvitation(data: { body: any, user: User }) {
+    static async createInvitation(data: { body: any, user: User }) {
         const { user, body } = data
 
         if (user.role !== $Enums.OrgRole.admin) {
             const forbiddenError: ForbbidenError = {
                 statusCode: 403,
-                message: "Only admin can create organization invitations",
+                message: "Only admin can create invitations",
                 content: {
                     type: 'ForbiddenError',
                     model: 'User',
@@ -59,7 +62,28 @@ export default class OrganizationService {
             throw new CustomError(forbiddenError)
         }
 
+        const invitationCode = generateRandomString(8)
+        const _organizationReg = await this.findOneBy({ uuid: user.organization_uuid })
+
+        const dataToCreateCodeReg: OrgInvitationCodes = {
+            organization_uuid: _organizationReg?.uuid as string,
+            organization_name: _organizationReg?.name as string,
+            code: invitationCode,
+            expirates_at: body.expiration_date,
+            claimed_at: null,
+            id_user_claimed: null
+        }
+
+
+        const createdCodeReg = await Invitation.create({ data: dataToCreateCodeReg })
+
+        return createdCodeReg
+
     }
+
+    static findOneBy = (where: any) => Organization.findUnique({ where })
+
+
 }
 
 

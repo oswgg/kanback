@@ -31,7 +31,7 @@ export default {
                 user: req.user as User
             }
 
-            const content = OrganizationService.createInvitation(dataForService)
+            const content = await OrganizationService.createInvitation(dataForService)
 
             return res.status(200).json({
                 ok: true,

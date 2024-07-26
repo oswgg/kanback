@@ -2,7 +2,8 @@ import { $Enums, PrismaClient } from '@prisma/client'
 import bcrypt from 'bcrypt'
 import { UserSignup } from '../schemas/signup'
 import { CustomError } from '../../../utils/middlewares/ErrorHandler'
-import { DuplicatedError, ErrorInterface } from '../../../utils/interfaces/ErrorInterfaces'
+import { DuplicatedError } from '../../../utils/interfaces/ErrorInterfaces'
+import { hashPassword } from '../../../utils/helpers'
 
 const db = new PrismaClient().user
 export default class UserService {
@@ -29,13 +30,10 @@ export default class UserService {
                 }
                 throw new CustomError(duplicateContent)
             }
-
-            const hashedPassword = UserService.hashPassword(password)
+            const hashedPassword = hashPassword(password)
 
             const infoToCreateUser = {
-                username,
-                email,
-                first_name,
+                username, email, first_name,
                 last_name,
                 password: hashedPassword,
                 age,
@@ -58,13 +56,5 @@ export default class UserService {
     static async findOneBy(where: any) {
         return await db.findUnique({ where })
     }
-
-
-    static hashPassword(password: string) {
-        const salt = bcrypt.genSaltSync(10)
-        return bcrypt.hashSync(password, salt)
-    }
-
-    static isValidPassword = (userRegPass: string, givenPass: string): boolean => bcrypt.compareSync(givenPass, userRegPass)
 
 }

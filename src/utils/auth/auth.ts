@@ -5,7 +5,7 @@ import { CustomError } from '../middlewares/ErrorHandler'
 import { ErrorInterface, NotFoundError } from '../interfaces/ErrorInterfaces'
 import UserService from '../../modules/user/services/userService'
 import config from '../../config'
-import { User } from '@prisma/client'
+import { isValidPassword } from '../helpers'
 
 passport.use('login',
     new Strategy({ usernameField: 'email', passwordField: 'password' },
@@ -28,9 +28,9 @@ passport.use('login',
                     return done(new CustomError(notFoundUser), false)
                 }
 
-                const isValidPassword: boolean = UserService.isValidPassword(user.password, password)
+                const isGivenValidPassword: boolean = isValidPassword(user.password, password)
 
-                if (!isValidPassword) {
+                if (!isGivenValidPassword) {
                     const invalidCred: ErrorInterface = {
                         statusCode: 401,
                         message: 'Invalid user or password',
