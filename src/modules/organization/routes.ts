@@ -10,6 +10,7 @@ import organizationController from './controller/organizationController'
 
 // ---------- SCHEMAS ------------
 import createSchema from './schemas/createOrganization'
+import inviteSchema from './schemas/invitationSchema'
 
 
 export default (app: Router) => {
@@ -22,6 +23,13 @@ export default (app: Router) => {
         AuthorizationMiddleware,
         SchemaValidation(createSchema),
         organizationController.create
+    )
+
+    router.post(
+        '/invite',
+        AuthorizationMiddleware,
+        SchemaValidation(inviteSchema),
+        organizationController.createInvitation
     )
 
     return router

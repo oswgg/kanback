@@ -2,7 +2,7 @@ import { $Enums, PrismaClient } from '@prisma/client'
 import bcrypt from 'bcrypt'
 import { UserSignup } from '../schemas/signup'
 import { CustomError } from '../../../utils/middlewares/ErrorHandler'
-import { ModelError } from '../../../utils/interfaces/ErrorInterfaces'
+import { DuplicatedError, ErrorInterface } from '../../../utils/interfaces/ErrorInterfaces'
 
 const db = new PrismaClient().user
 export default class UserService {
@@ -14,14 +14,20 @@ export default class UserService {
             const existingEmailUser = await db.findUnique({ where: { email } })
 
             if (existingEmailUser) {
-                const duplicateContent: ModelError = {
-                    model: 'User',
-                    message: 'User with this email already exists',
-                    props: {
-                        email: existingEmailUser.email
+                const duplicateContent: DuplicatedError = {
+                    statusCode: 406,
+                    message: "User with this email already exists",
+                    content: {
+                        type: 'DuplicatedError',
+                        model: 'User',
+                        props: {
+                            duplicated: {
+                                email: existingEmailUser.email
+                            }
+                        }
                     }
                 }
-                throw new CustomError('Cannot create User', 403, 'DuplicateError', duplicateContent)
+                throw new CustomError(duplicateContent)
             }
 
             const hashedPassword = UserService.hashPassword(password)

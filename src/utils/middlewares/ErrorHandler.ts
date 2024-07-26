@@ -1,16 +1,17 @@
 import { Request, Response, NextFunction } from 'express'
 import { ErrorType } from "../types/types"
+import { ErrorInterface } from '../interfaces/ErrorInterfaces'
 
 export class CustomError extends Error {
     statusCode: number
-    type: ErrorType
     content: any
+    message: string
 
-    constructor(message: string, statusCode?: number, type?: ErrorType, content?: any) {
+    constructor(error: ErrorInterface | null, message?: string) {
         super(message)
-        this.statusCode = statusCode || 500
-        this.type = type || 'UnknownError'
-        this.content = content || undefined
+        this.statusCode = error?.statusCode || 500
+        this.content = error?.content || {}
+        this.message = error?.message || message || 'Oops..'
         this.name = this.constructor.name
 
         Object.setPrototypeOf(this, CustomError.prototype)
@@ -20,23 +21,10 @@ export class CustomError extends Error {
 
 const errorHandler = (error: CustomError, req: Request, res: Response, next: NextFunction) => {
 
-    let errorToShow
-
-    if (error.content) {
-        errorToShow = {
-            type: error.type,
-            content: error.content
-        }
-    } else {
-        errorToShow = {
-            type: error.type,
-            message: error.message
-        }
-    }
-
     return res.status(error.statusCode).json({
         ok: false,
-        error: errorToShow
+        message: error.message,
+        content: error.content
     })
 }
 

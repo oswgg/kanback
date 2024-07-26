@@ -1,3 +1,3 @@
 export type ErrorType =
-    'PayloadError' | 'UnknownError' | 'DuplicateError' | 'NotFoundError' | 'AuthorizationError' | 'JWTExpiredError' | 'JWTInvalidError'
+    'PayloadError' | 'UnknownError' | 'DuplicatedError' | 'NotFoundError' | 'AuthorizationError' | 'JWTExpiredError' | 'JWTInvalidError' | 'ForbiddenError'
 

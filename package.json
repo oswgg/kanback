@@ -22,6 +22,7 @@
         "typescript": "^5.5.3"
     },
     "dependencies": {
+        "@joi/date": "^2.1.1",
         "@prisma/client": "^5.17.0",
         "@types/bcrypt": "^5.0.2",
         "@types/passport": "^1.0.16",

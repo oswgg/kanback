@@ -15,19 +15,24 @@ const SchemaValidation = (schema: Joi.Schema): RequestHandler => {
             next()
         } catch (err: any) {
             if (err instanceof Joi.ValidationError) {
-                const errors: SchemaErrorList = {
-                    errors: err.details.map((e: any) => {
-                        return {
-                            field: e.context.key,
-                            message: e.message
-                        }
-                    })
+                const payloadErrors: SchemaErrorList = {
+                    statusCode: 500,
+                    message: 'Error in payload validation',
+                    content: {
+                        type: 'PayloadError',
+                        errors: err.details.map((e: any) => {
+                            return {
+                                field: e.context.key,
+                                message: e.message
+                            }
+                        })
+                    }
                 }
 
-                return next(new CustomError('error', 400, 'PayloadError', errors))
+                return next(new CustomError(payloadErrors))
             }
 
-            return next(new CustomError('error', 400, 'UnknownError', { message: 'Oops...' }))
+            return next(new CustomError(null, "Oops"))
         }
     }
 

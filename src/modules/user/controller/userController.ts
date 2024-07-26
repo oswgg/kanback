@@ -16,7 +16,7 @@ export default {
             if (err instanceof CustomError)
                 return next(err)
 
-            return next(new CustomError(err.message))
+            return next(new CustomError(null, err.message))
         }
     },
 
