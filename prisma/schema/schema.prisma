@@ -15,5 +15,21 @@ model Organization {
     image_url    String?
     welcome_text String?  @db.MediumText
     created_at   DateTime @default(now())
-    users        User[]
+
+    users            User[]
+    invitation_codes OrgInvitationCodes[]
+}
+
+model OrgInvitationCodes {
+    organization_uuid String    @db.VarChar(36)
+    organization_name String    @db.VarChar(100)
+    code              String    @db.VarChar(8)
+    expirates_at      DateTime  @db.DateTime()
+    id_user_claimed   Int?      @unique @db.Int
+    claimed_at        DateTime?
+
+    organization Organization @relation(fields: [organization_uuid], references: [uuid])
+    user         User?        @relation(fields: [id_user_claimed], references: [id])
+
+    @@id([organization_uuid, code])
 }

@@ -13,7 +13,8 @@ model User {
     image_url         String?
     created_at        DateTime @default(now())
 
-    organization Organization? @relation(fields: [organization_uuid], references: [uuid])
+    organization    Organization?       @relation(fields: [organization_uuid], references: [uuid])
+    invitation_code OrgInvitationCodes?
 }
 
 enum Language {
