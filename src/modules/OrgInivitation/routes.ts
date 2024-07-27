@@ -6,21 +6,32 @@ import AuthorizationMiddleware from '../../utils/middlewares/AuthorizationMiddle
 import SchemaValidation from '../../utils/middlewares/SchemaValidation'
 
 // ----------- CONTROLLER ----------
-import organizationController from './controller/organizationController'
+import orgInvController from './controller/orgInvController'
 
 // ---------- SCHEMAS ------------
-import createSchema from './schemas/createOrganization'
+import inviteSchema from './schemas/invitationSchema'
 
 
 export default (app: Router) => {
 
     app.use('/organization', router)
 
+
     router.post(
-        '/create',
+        '/invite',
         AuthorizationMiddleware,
-        SchemaValidation(createSchema),
-        organizationController.create
+        SchemaValidation(inviteSchema),
+        orgInvController.createInvitation
     )
+
+    router.get(
+        '/join-us/:org_name/:invitation_code',
+        AuthorizationMiddleware,
+        orgInvController.joinOrganization
+    )
+
+
+
     return router
 }
+

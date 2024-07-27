@@ -1,6 +1,6 @@
 import { Router } from 'express'
-import users from '../modules/user/routes'
-import organizations from '../modules/organization/routes'
+import users from '../modules/User/routes'
+import organizations from '../modules/Organization/routes'
 
 export default () => {
     const router = Router()
