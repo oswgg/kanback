@@ -19,6 +19,7 @@ export default class OrgInvitationService {
     static async createInvitation(data: { body: any, user: User }) {
         try {
             const { user, body } = data
+            console.log(user)
             if (!user.organization_uuid) {
                 const userNotOrg = new ErrorFactory(
                     406,
@@ -66,6 +67,18 @@ export default class OrgInvitationService {
         try {
             const invitationReg = await Invitation.findFirst({ where: { organization_name: org_name, code: invitation_code } })
 
+            if (user.organization_uuid) {
+                const alreadyAssociated = new ForbiddenErrorFactory(
+                    'User is already associated with an organization',
+                    'User', {
+                    required: {
+                        organization_uuid: null
+                    }
+                })
+
+                throw new CustomError(alreadyAssociated)
+            }
+
             if (!invitationReg) {
                 const notAnInvitation = new NotFoundErrorFactory(
                     'Invalid invitation code or organization name',
@@ -88,19 +101,6 @@ export default class OrgInvitationService {
                 throw new CustomError(alreadyClaimed)
             }
 
-            if (user.organization_uuid) {
-                const alreadyAssociated = new ForbiddenErrorFactory(
-                    'User is already associated with an organization',
-                    'User', {
-                    required: {
-                        organization_uuid: null
-                    }
-                })
-
-                throw new CustomError(alreadyAssociated)
-            }
-
-
             const updatedInvitation = await Invitation.update({
                 where: {
                     organization_uuid_code: {
@@ -115,6 +115,8 @@ export default class OrgInvitationService {
             })
 
             const userNowAssociate = orgInvitationEvents.emit('InvitationClaimed', [user.id, invitationReg.organization_uuid])
+
+            return userNowAssociate
 
         } catch (err: any) {
             if (err instanceof CustomError)
