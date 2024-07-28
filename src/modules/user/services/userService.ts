@@ -1,34 +1,26 @@
 import { $Enums, PrismaClient } from '@prisma/client'
-import bcrypt from 'bcrypt'
 import { UserSignup } from '../schemas/signup'
 import { CustomError } from '../../../utils/middlewares/ErrorHandler'
-import { DuplicatedError } from '../../../utils/interfaces/ErrorInterfaces'
+import { DuplicatedErrorFactory } from '../../../utils/interfaces/ErrorInterfaces'
 import { hashPassword } from '../../../utils/helpers'
 
-const db = new PrismaClient().user
+const User = new PrismaClient().user
 export default class UserService {
 
     static async signUp(data: UserSignup) {
         try {
             const { username, email, first_name, last_name, age, sex, password, password_confirmation } = data
 
-            const existingEmailUser = await db.findUnique({ where: { email } })
+            const existingEmailUser = await User.findUnique({ where: { email } })
 
             if (existingEmailUser) {
-                const duplicateContent: DuplicatedError = {
-                    statusCode: 406,
-                    message: "User with this email already exists",
-                    content: {
-                        type: 'DuplicatedError',
-                        model: 'User',
-                        props: {
-                            duplicated: {
-                                email: existingEmailUser.email
-                            }
-                        }
-                    }
-                }
-                throw new CustomError(duplicateContent)
+                const emailExists = new DuplicatedErrorFactory(
+                    `User with email ${username} already exists`,
+                    'User',
+                    { email }
+                )
+
+                throw new CustomError(emailExists)
             }
             const hashedPassword = hashPassword(password)
 
@@ -41,7 +33,7 @@ export default class UserService {
                 role: $Enums.OrgRole.none
             }
 
-            const userCreated = await db.create({ data: infoToCreateUser })
+            const userCreated = await User.create({ data: infoToCreateUser })
 
             return userCreated
         } catch (err) {
@@ -50,11 +42,14 @@ export default class UserService {
     }
 
     static createOrganization = async (id: number, organization_uuid: string) =>
-        await db.update({ where: { id }, data: { organization_uuid, role: $Enums.OrgRole.admin } })
+        await User.update({ where: { id }, data: { organization_uuid, role: $Enums.OrgRole.admin } })
+
+    static joinToOrganization = async (id: number, organization_uuid: string) =>
+        await User.update({ where: { id }, data: { organization_uuid, role: $Enums.OrgRole.member } }).then(res => res)
 
 
     static async findOneBy(where: any) {
-        return await db.findUnique({ where })
+        return await User.findUnique({ where })
     }
 
 }

@@ -40,8 +40,10 @@ export default {
             })
 
         } catch (err: any) {
-            console.log(err)
-            throw err
+            if (err instanceof CustomError)
+                return next(err)
+
+            return next(new CustomError(null, err.message))
         }
 
 

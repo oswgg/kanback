@@ -1,36 +1,45 @@
 import { Request, Response, NextFunction } from "express"
 import { CustomError } from "./ErrorHandler"
 import passport from "passport"
-import { ErrorInterface } from "../interfaces/ErrorInterfaces"
+import { ErrorFactory } from "../interfaces/ErrorInterfaces"
 
 const AuthorizationMiddleware = (req: Request, res: Response, next: NextFunction) => {
     passport.authenticate('jwt_auth', (err: any, user: any, info: any) => {
         try {
             if (info) {
                 if (info.name === 'TokenExpiredError') {
-                    const expiredError: ErrorInterface = {
-                        statusCode: 401,
-                        message: 'JWT token has expired',
-                        content: {
+                    const expiredTokenError = new ErrorFactory(
+                        401,
+                        'JWT token has expired',
+                        {
                             type: 'JWTExpiredError',
                             token: req.headers.authorization,
                             expired_at: new Date(info.expiredAt)
                         }
-                    }
+                    )
 
-                    throw new CustomError(expiredError)
+                    throw new CustomError(expiredTokenError)
+
                 } else if (info.name === 'JsonWebTokenError') {
-                    const tokenError: ErrorInterface = {
-                        statusCode: 401,
-                        message: 'Invalid JWT token',
-                        content: {
+                    const invalidTokenError = new ErrorFactory(
+                        401,
+                        'Invalid JWT Token',
+                        {
                             type: 'JWTInvalidError',
                             token: req.headers.authorization,
-                            message: 'Invalid JWT token'
                         }
-                    }
+                    )
 
-                    throw new CustomError(tokenError)
+
+                    throw new CustomError(invalidTokenError)
+
+                } else if (info.message === 'No auth token') {
+                    const noneTokenGiven = new ErrorFactory(
+                        401,
+                        'None JWT Token was given',
+                    )
+
+                    throw new CustomError(noneTokenGiven)
                 }
             }
 

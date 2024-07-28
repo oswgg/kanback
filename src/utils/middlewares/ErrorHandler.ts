@@ -1,13 +1,12 @@
 import { Request, Response, NextFunction } from 'express'
-import { ErrorType } from "../types/types"
-import { ErrorInterface } from '../interfaces/ErrorInterfaces'
+import { ErrorFactory } from '../interfaces/ErrorInterfaces'
 
 export class CustomError extends Error {
     statusCode: number
     content: any
     message: string
 
-    constructor(error: ErrorInterface | null, message?: string) {
+    constructor(error: ErrorFactory | null, message?: string) {
         super(message)
         this.statusCode = error?.statusCode || 500
         this.content = error?.content || {}

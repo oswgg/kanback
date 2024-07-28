@@ -8,4 +8,5 @@ organizationEvents.on('OrganizationCreated', ([userCreatorID, createdOrgUUID]: [
     UserService.createOrganization(userCreatorID, createdOrgUUID)
 })
 
+
 export default organizationEvents

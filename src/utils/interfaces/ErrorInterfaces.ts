@@ -1,53 +1,65 @@
 import { ErrorType } from "../types/types"
 
-export interface ErrorInterface {
-    statusCode: number;
-    message: string;
-    content: {
-        type: ErrorType;
+interface ErrorContent {
+    type: ErrorType;
+    model: string;
+    props: {
         [key: string]: any;
     }
 }
 
-
-export interface NotFoundError extends ErrorInterface {
-    statusCode: 404;
+export class ErrorFactory {
+    statusCode: number;
     message: string;
-    content: {
-        type: 'NotFoundError';
-        model: string;
-        props: {
-            [key: string]: any;
+    content: ErrorContent | {}
+
+    constructor(statusCode: number, message: string, content?: object) {
+        this.statusCode = statusCode;
+        this.message = message;
+        this.content = content || {};
+    }
+
+}
+
+
+export class NotFoundErrorFactory extends ErrorFactory {
+
+    constructor(message: string, model: string, props: object) {
+        const content: ErrorContent = {
+            type: 'NotFoundError',
+            model,
+            props
         }
+        super(404, message, content)
     }
 }
 
 
-export interface DuplicatedError extends ErrorInterface {
-    statusCode: 406;
-    message: string;
-    content: {
-        type: 'DuplicatedError';
-        model: string;
-        props: {
-            duplicated: {
-                [key: string]: any;
+export class DuplicatedErrorFactory extends ErrorFactory {
+    constructor(message: string, model: string, duplicated: object) {
+        const content: ErrorContent = {
+            type: 'DuplicatedError',
+            model,
+            props: {
+                duplicated
             }
         }
+        super(409, message, content)
     }
 }
 
-export interface ForbbidenError extends ErrorInterface {
-    content: {
-        type: 'ForbiddenError';
-        model: string
-        props: {
-            required?: {
-                [key: string]: any;
-            },
-            forbidden?: {
-                [key: string]: any;
+
+export class ForbiddenErrorFactory extends ErrorFactory {
+    constructor(message: string, model: string, required?: object | null, forbidden?: object | null) {
+        const content: ErrorContent = {
+            type: 'ForbiddenError',
+            model,
+            props: {
+                required,
+                forbidden
             }
         }
+        super(403, message, content)
     }
 }
+

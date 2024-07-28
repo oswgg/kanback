@@ -1,7 +1,8 @@
-import { $Enums, OrgInvitationCodes, PrismaClient, User } from "@prisma/client"
-import { ForbbidenError } from "../../../utils/interfaces/ErrorInterfaces"
+import { $Enums, OrgInvitationCodes, Prisma, PrismaClient, User } from "@prisma/client"
+import { ErrorFactory, ForbiddenErrorFactory, NotFoundErrorFactory } from "../../../utils/interfaces/ErrorInterfaces"
 import { CustomError } from "../../../utils/middlewares/ErrorHandler"
 import { generateRandomString } from "../../../utils/helpers"
+import orgInvitationEvents from "../events/invitationEvents"
 
 const prisma = new PrismaClient()
 
@@ -9,26 +10,32 @@ const Invitation = prisma.orgInvitationCodes
 const Organization = prisma.organization
 
 export default class OrgInvitationService {
+    static possibleError = new ErrorFactory(
+        500,
+        "Internal server error",
+    )
+
+
     static async createInvitation(data: { body: any, user: User }) {
         try {
             const { user, body } = data
+            if (!user.organization_uuid) {
+                const userNotOrg = new ErrorFactory(
+                    406,
+                    'User must be associated with an organization',
+                )
+
+                throw new CustomError(userNotOrg)
+            }
 
             if (user.role !== $Enums.OrgRole.admin) {
-                const forbiddenError: ForbbidenError = {
-                    statusCode: 403,
-                    message: "Only admin can create invitations",
-                    content: {
-                        type: 'ForbiddenError',
-                        model: 'User',
-                        props: {
-                            required: {
-                                role: $Enums.OrgRole.admin
-                            }
-                        }
-                    }
-                }
+                const userNotAdmin = new ForbiddenErrorFactory(
+                    'Only admin users are allowed to create invitations',
+                    'User',
+                    { organization_uuid: user.organization_uuid }
+                )
 
-                throw new CustomError(forbiddenError)
+                throw new CustomError(userNotAdmin)
             }
 
             const invitationCode = generateRandomString(8)
@@ -57,23 +64,72 @@ export default class OrgInvitationService {
 
     static async joinOrganization(org_name: string, invitation_code: string, user: User) {
         try {
-            const invitationReg = await Invitation.findFirst({ where: { code: invitation_code, organization_name: org_name } })
-            if (invitationReg?.claimed_at)
-                throw new Error("This invitation has already been claimed.")
+            const invitationReg = await Invitation.findFirst({ where: { organization_name: org_name, code: invitation_code } })
 
-            const organizationReg = await Organization.findFirst({ where: { name: org_name } })
+            if (!invitationReg) {
+                const notAnInvitation = new NotFoundErrorFactory(
+                    'Invalid invitation code or organization name',
+                    'OrgInvitationCodes', {
+                    code: invitation_code,
+                    organization_name: org_name
+                })
+
+                throw new CustomError(notAnInvitation)
+            }
+
+            if (invitationReg.claimed_at) {
+                const alreadyClaimed = new ForbiddenErrorFactory(
+                    'This invitation has already been claimed',
+                    'OrgInvitationCodes', {
+                    code: invitation_code,
+                    organization_name: org_name
+                })
+
+                throw new CustomError(alreadyClaimed)
+            }
+
+            if (user.organization_uuid) {
+                const alreadyAssociated = new ForbiddenErrorFactory(
+                    'User is already associated with an organization',
+                    'User', {
+                    required: {
+                        organization_uuid: null
+                    }
+                })
+
+                throw new CustomError(alreadyAssociated)
+            }
 
 
-            console.log(invitationReg)
+            const updatedInvitation = await Invitation.update({
+                where: {
+                    organization_uuid_code: {
+                        organization_uuid: invitationReg.organization_uuid,
+                        code: invitationReg.code,
+                    }
+                },
+                data: {
+                    claimed_at: new Date(),
+                    id_user_claimed: user.id
+                }
+            })
+
+            const userNowAssociate = orgInvitationEvents.emit('InvitationClaimed', [user.id, invitationReg.organization_uuid])
 
         } catch (err: any) {
-            console.log(err)
-            throw err
+            if (err instanceof CustomError)
+                throw new CustomError(err)
+
+            throw new CustomError(this.possibleError)
         }
 
     }
 
 
-    static findOneBy = (where: any) => Invitation.findUnique({ where })
+    static findByUQ = async (where: Prisma.OrgInvitationCodesWhereUniqueInput): Promise<OrgInvitationCodes | null> => {
+        const invitation = await Invitation.findUnique({ where });
+        return invitation;
+    }
+
 
 }

@@ -14,7 +14,7 @@ import inviteSchema from './schemas/invitationSchema'
 
 export default (app: Router) => {
 
-    app.use('/organization', router)
+    app.use('/org-invitation', router)
 
 
     router.post(

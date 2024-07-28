@@ -2,8 +2,8 @@ import passport from 'passport'
 import { Strategy } from 'passport-local'
 import { Strategy as JWT_Strategy, ExtractJwt, StrategyOptionsWithoutRequest } from 'passport-jwt'
 import { CustomError } from '../middlewares/ErrorHandler'
-import { ErrorInterface, NotFoundError } from '../interfaces/ErrorInterfaces'
-import UserService from '../../modules/user/services/userService'
+import { ForbiddenErrorFactory, NotFoundErrorFactory } from '../interfaces/ErrorInterfaces'
+import UserService from '../../modules/User/services/userService'
 import config from '../../config'
 import { isValidPassword } from '../helpers'
 
@@ -14,36 +14,26 @@ passport.use('login',
                 const user = await UserService.findOneBy({ email })
 
                 if (!user) {
-                    const notFoundUser: NotFoundError = {
-                        statusCode: 404,
-                        message: 'User with this email not exists',
-                        content: {
-                            type: 'NotFoundError',
-                            model: 'User',
-                            props: {
-                                email: email
-                            }
-                        }
-                    }
+                    const notFoundUser = new NotFoundErrorFactory(
+                        'User not found',
+                        'User',
+                        { email: email }
+                    )
+
                     return done(new CustomError(notFoundUser), false)
                 }
 
                 const isGivenValidPassword: boolean = isValidPassword(user.password, password)
 
                 if (!isGivenValidPassword) {
-                    const invalidCred: ErrorInterface = {
-                        statusCode: 401,
-                        message: 'Invalid user or password',
-                        content: {
-                            type: 'AuthorizationError',
-                            model: 'User',
-                            props: {
-                                email: email,
-                                password: password,
-                            }
-                        }
-                    }
-                    return done(new CustomError(invalidCred))
+                    const notValidCredentials = new ForbiddenErrorFactory(
+                        'Invalid user or password',
+                        'User',
+                        null,
+                        { email, password }
+                    )
+
+                    return done(new CustomError(notValidCredentials), false)
                 }
 
                 return done(null, user)
@@ -66,18 +56,11 @@ passport.use("jwt_auth",
             const user = await UserService.findOneBy({ id: jwt_payload.user.id })
 
             if (!user) {
-                const notFoundUser: NotFoundError = {
-                    statusCode: 404,
-                    message: 'User with this id does not exist',
-                    content: {
-                        model: 'User',
-                        type: 'NotFoundError',
-                        props: {
-                            id: jwt_payload.id
-                        }
-                    }
-                }
-
+                const notFoundUser = new NotFoundErrorFactory(
+                    'User not found',
+                    'User',
+                    { id: jwt_payload.id }
+                )
                 return done(new CustomError(notFoundUser), false)
             }
 
