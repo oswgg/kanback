@@ -1,7 +1,7 @@
 import { Router } from 'express'
 import CheckUserIsLoggedMiddleware from '../../utils/middlewares/CheckUserIsLoggedMiddleware'
 import projectController from './controller/projectController'
-import CheckProjectPermMiddleware from './middlewares/CheckProjectPermsMiddleware'
+import CheckProjectRoleMiddleware from './middlewares/CheckProjectRoleMiddleware'
 const router = Router()
 
 
@@ -11,7 +11,7 @@ export default (app: Router) => {
     router.post(
         '/new',
         CheckUserIsLoggedMiddleware,
-        CheckProjectPermMiddleware,
+        CheckProjectRoleMiddleware,
         projectController.createProject
     )
 }
