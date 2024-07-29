@@ -16,5 +16,4 @@ export default ({ app }: { app: express.Application }) => {
     app.use(errorHandlerMiddleware)
 
 
-    console.log(" \n             Now using json parse")
 }

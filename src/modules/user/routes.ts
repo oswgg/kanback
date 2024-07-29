@@ -4,7 +4,7 @@ const router = Router()
 // ----------- MIDDLEWARES ---------
 import SchemaValidation from '../../utils/middlewares/SchemaValidation'
 import CheckCredentials from '../../utils/middlewares/CheckCredentials'
-import AuthorizationMiddleware from '../../utils/middlewares/AuthorizationMiddleware'
+import CheckUserIsLoggedMiddleware from '../../utils/middlewares/CheckUserIsLoggedMiddleware'
 
 // ----------- CONTROLLER ----------
 import userController from './controller/userController'
@@ -34,7 +34,7 @@ export default (app: Router) => {
 
     router.get(
         '/me',
-        AuthorizationMiddleware,
+        CheckUserIsLoggedMiddleware,
         userController.getMe
     )
 

@@ -13,8 +13,13 @@ model User {
     image_url         String?
     created_at        DateTime @default(now())
 
+    // Has
     organization    Organization?       @relation(fields: [organization_uuid], references: [uuid])
     invitation_code OrgInvitationCodes?
+    createdProjects Project[]
+    joinedProjects  ProjectMember[]
+
+    @@map("users")
 }
 
 enum Language {
@@ -25,5 +30,6 @@ enum Language {
 enum OrgRole {
     none
     admin
+    manager
     member
 }
