@@ -53,10 +53,7 @@ const optsForJwt: StrategyOptionsWithoutRequest = {
 passport.use("jwt_auth",
     new JWT_Strategy(optsForJwt, async (jwt_payload: any, done: any) => {
         try {
-            console.log(jwt_payload)
             const user = await UserService.findOneBy({ id: jwt_payload.user.id })
-
-            console.log(user)
 
             if (!user) {
                 const notFoundUser = new NotFoundErrorFactory(

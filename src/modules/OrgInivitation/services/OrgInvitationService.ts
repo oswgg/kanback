@@ -19,7 +19,6 @@ export default class OrgInvitationService {
     static async createInvitation(data: { body: any, user: User }) {
         try {
             const { user, body } = data
-            console.log(user)
             if (!user.organization_uuid) {
                 const userNotOrg = new ErrorFactory(
                     406,

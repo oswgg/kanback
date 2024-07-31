@@ -47,7 +47,10 @@ const CheckUserIsLoggedMiddleware = (req: Request, res: Response, next: NextFunc
                 throw err
 
             delete user.password
+
             req.user = user
+            req.authUser = user
+
             next()
         } catch (err: any) {
             if (err instanceof CustomError)
