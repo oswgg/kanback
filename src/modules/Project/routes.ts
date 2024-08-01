@@ -1,9 +1,17 @@
 import { Router } from 'express'
-import CheckUserIsLoggedMiddleware from '../../utils/middlewares/CheckUserIsLoggedMiddleware'
-import projectController from './controller/projectController'
-import CheckUserRoleMiddleware from '../../utils/middlewares/CheckUserRoleMiddleware'
 import { $Enums } from '@prisma/client'
 const router = Router()
+
+// ----- CONTROLLER
+import projectController from './controller/projectController'
+
+// ----- MIDDLEWARES
+import CheckUserRoleMiddleware from '../../utils/middlewares/CheckUserRoleMiddleware'
+import CheckUserIsLoggedMiddleware from '../../utils/middlewares/CheckUserIsLoggedMiddleware'
+import SchemaValidation from '../../utils/middlewares/SchemaValidation'
+
+// ----- SCHEMAS
+import createPayload from './schemas/createProjectPayload'
 
 const sysAdmin = $Enums.OrgRole.admin
 
@@ -14,6 +22,7 @@ export default (app: Router) => {
         '/new',
         CheckUserIsLoggedMiddleware,
         CheckUserRoleMiddleware([sysAdmin], 'create new project'),
+        SchemaValidation(createPayload),
         projectController.createProject
     )
 

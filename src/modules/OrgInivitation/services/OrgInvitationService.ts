@@ -3,18 +3,14 @@ import { ErrorFactory, ForbiddenErrorFactory, NotFoundErrorFactory } from "../..
 import { CustomError } from "../../../utils/middlewares/ErrorHandler"
 import { generateRandomString } from "../../../utils/helpers"
 import orgInvitationEvents from "../events/invitationEvents"
+import Service from "../../../utils/interfaces/ServiceInterface"
 
 const prisma = new PrismaClient()
 
 const Invitation = prisma.orgInvitationCodes
 const Organization = prisma.organization
 
-export default class OrgInvitationService {
-    static possibleError = new ErrorFactory(
-        500,
-        "Internal server error",
-    )
-
+export default class OrgInvitationService extends Service {
 
     static async createInvitation(data: { body: any, user: User }) {
         try {
