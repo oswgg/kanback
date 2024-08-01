@@ -18,6 +18,12 @@ const sysAdmin = $Enums.OrgRole.admin
 export default (app: Router) => {
     app.use('/projects', router)
 
+    router.get(
+        "/",
+        CheckUserIsLoggedMiddleware,
+        projectController.getAllProjects
+    )
+
     router.post(
         '/new',
         CheckUserIsLoggedMiddleware,

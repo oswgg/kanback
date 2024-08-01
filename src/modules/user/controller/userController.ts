@@ -8,7 +8,7 @@ export default {
             const { body } = req
             const result = await UserService.signUp(body)
 
-            return res.status(200).json({
+            return res.status(201).json({
                 ok: true,
                 content: result
             })

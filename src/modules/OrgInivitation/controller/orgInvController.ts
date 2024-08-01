@@ -14,7 +14,7 @@ export default {
 
             const content = await OrgInvitationService.createInvitation(dataForService)
 
-            return res.status(200).json({
+            return res.status(201).json({
                 ok: true,
                 content
             })

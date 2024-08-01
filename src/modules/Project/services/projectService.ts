@@ -51,5 +51,6 @@ export default class ProjectService extends Service {
 
 
     static findOne = (where: Partial<Project>) => Project.findFirst({ where });
+    static findAll = (where: Partial<Project>) => Project.findMany({ where })
 
 }
