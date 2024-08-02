@@ -9,7 +9,4 @@ export default abstract class Service {
 
     static findOne = (model: any, where: any) => model.findFirst({ where });
 
-
-
-
 }

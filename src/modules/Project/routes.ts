@@ -12,11 +12,12 @@ import SchemaValidation from '../../utils/middlewares/SchemaValidation'
 
 // ----- SCHEMAS
 import createPayload from './schemas/createProjectPayload'
+import addMemberPayload from './schemas/addMemberPayload'
 
 const sysAdmin = $Enums.OrgRole.admin
 
 export default (app: Router) => {
-    app.use('/projects', router)
+    app.use('/project', router)
 
     router.get(
         "/",
@@ -36,6 +37,14 @@ export default (app: Router) => {
         '/update/:project_code_id',
         CheckUserIsLoggedMiddleware,
         projectController.updateProject
+    )
+
+    router.post(
+        '/member/add',
+        CheckUserIsLoggedMiddleware,
+        CheckUserRoleMiddleware([sysAdmin], 'add member'),
+        SchemaValidation(addMemberPayload),
+        projectController.addMember
     )
 
     return router

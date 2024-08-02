@@ -1,7 +1,9 @@
 import { Request, Response, NextFunction } from 'express'
 import { ForbiddenErrorFactory } from '../../../utils/interfaces/ErrorInterfaces'
 import { CustomError } from '../../../utils/middlewares/ErrorHandler'
+import { AddMemberPayload } from '../schemas/addMemberPayload'
 import ProjectService from '../services/projectService'
+import { $Enums } from '@prisma/client'
 
 export default {
     getAllProjects: async (req: Request, res: Response, next: NextFunction) => {
@@ -70,6 +72,44 @@ export default {
         try {
 
         } catch (err: any) {
+            if (err instanceof CustomError)
+                return next(err)
+
+            return next(new CustomError(null, err.message))
+
+
+        }
+    },
+
+
+    addMember: async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const { body }: { body: AddMemberPayload } = req
+
+            const { project_code_id, user_id, role } = body
+
+            // Si se agregan mas, se movera de lugar
+            const MemberTypes: { [key in AddMemberPayload['role']]: $Enums.ProjectMemberTypes } = {
+                admin: $Enums.ProjectMemberTypes.admin,
+                member: $Enums.ProjectMemberTypes.member,
+            }
+
+            if (!MemberTypes[role])
+                throw new CustomError(null, 'Invalid role')
+
+            const content = await ProjectService.addMember(user_id, project_code_id, MemberTypes[role])
+
+            return res.status(201).json({
+                ok: true,
+                content
+            })
+
+        } catch (err: any) {
+            if (err instanceof CustomError)
+                return next(err)
+
+            return next(new CustomError(null, err.message))
+
 
         }
     },

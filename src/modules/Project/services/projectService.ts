@@ -1,13 +1,15 @@
-import { PrismaClient, Project, User } from "@prisma/client";
+import { $Enums, PrismaClient, Project, ProjectMember, User } from "@prisma/client";
 import { CustomError } from "../../../utils/middlewares/ErrorHandler";
 import { createProjectPayload } from "../schemas/createProjectPayload";
 import Service from "../../../utils/interfaces/ServiceInterface";
 import { DuplicatedErrorFactory } from "../../../utils/interfaces/ErrorInterfaces";
 import { generateRandomString } from "../../../utils/helpers";
+import projectEvents from "../events/projectEvents";
 
 const prisma = new PrismaClient()
 
 const Project = prisma.project
+const ProjectMember = prisma.projectMember
 
 export default class ProjectService extends Service {
 
@@ -39,7 +41,12 @@ export default class ProjectService extends Service {
 
             const newProject = await Project.create({ data: infoToCreateProject })
 
-            return newProject
+            const createdProjectMember = projectEvents.emit("ProjectCreated", [creatorUser.id, newProject.code_id])
+
+            return {
+                newProject,
+                createdProjectMember,
+            }
 
         } catch (err: any) {
             if (err instanceof CustomError)
@@ -49,8 +56,49 @@ export default class ProjectService extends Service {
         }
     }
 
+    static async addMember(userID: number, projectCodeID: string, role: $Enums.ProjectMemberTypes) {
+        try {
+            const dataRelUserProject: ProjectMember = {
+                project_code_id: projectCodeID,
+                user_id: userID,
+                role
+            }
+
+            const userIsMember = await ProjectMember.findUnique({
+                where: {
+                    project_code_id_user_id: {
+                        project_code_id: projectCodeID,
+                        user_id: userID,
+                    }
+                }
+            })
+
+            if (userIsMember) {
+                const alreadyMember = new DuplicatedErrorFactory(
+                    'User is already in the project',
+                    'ProjectMember',
+                    { user_id: userID, project_code_id: projectCodeID }
+                )
+
+                throw new CustomError(alreadyMember)
+            }
+
+            const projectMeberRel = await ProjectMember.create({ data: dataRelUserProject })
+
+            return projectMeberRel
+
+        } catch (err: any) {
+            console.log(err)
+            if (err instanceof CustomError)
+                throw err
+
+            throw this.possibleError
+        }
+
+    }
+
+
 
     static findOne = (where: Partial<Project>) => Project.findFirst({ where });
     static findAll = (where: Partial<Project>) => Project.findMany({ where })
-
 }
