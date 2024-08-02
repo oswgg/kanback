@@ -1,19 +1,21 @@
-import { $Enums, PrismaClient, Project, ProjectMember, User } from "@prisma/client";
+import { $Enums, Prisma, PrismaClient, Project, ProjectMember, User } from "@prisma/client";
 import { CustomError } from "../../../utils/middlewares/ErrorHandler";
 import { createProjectPayload } from "../schemas/createProjectPayload";
-import Service from "../../../utils/interfaces/ServiceInterface";
 import { DuplicatedErrorFactory } from "../../../utils/interfaces/ErrorInterfaces";
 import { generateRandomString } from "../../../utils/helpers";
+import Service from "../../../utils/interfaces/ServiceInterface";
 import projectEvents from "../events/projectEvents";
 
 const prisma = new PrismaClient()
-
-const Project = prisma.project
-const ProjectMember = prisma.projectMember
+const _Project = prisma.project
+const _ProjectMember = prisma.projectMember
 
 export default class ProjectService extends Service {
+    constructor() {
+        super()
+    }
 
-    static async createProject(data: createProjectPayload, creatorUser: User) {
+    public async createProject(data: createProjectPayload, creatorUser: User) {
         try {
             const { organization_uuid } = creatorUser
             const { name, description, welcome_text } = data
@@ -39,7 +41,7 @@ export default class ProjectService extends Service {
                 welcome_text: welcome_text || null,
             }
 
-            const newProject = await Project.create({ data: infoToCreateProject })
+            const newProject = await _Project.create({ data: infoToCreateProject })
 
             const createdProjectMember = projectEvents.emit("ProjectCreated", [creatorUser.id, newProject.code_id])
 
@@ -52,11 +54,11 @@ export default class ProjectService extends Service {
             if (err instanceof CustomError)
                 throw err
 
-            throw new CustomError(this.possibleError)
+            throw this.possibleError
         }
     }
 
-    static async addMember(userID: number, projectCodeID: string, role: $Enums.ProjectMemberTypes) {
+    public async addMember(userID: number, projectCodeID: string, role: $Enums.ProjectMemberTypes) {
         try {
             const dataRelUserProject: ProjectMember = {
                 project_code_id: projectCodeID,
@@ -64,7 +66,7 @@ export default class ProjectService extends Service {
                 role
             }
 
-            const userIsMember = await ProjectMember.findUnique({
+            const userIsMember = await _ProjectMember.findUnique({
                 where: {
                     project_code_id_user_id: {
                         project_code_id: projectCodeID,
@@ -83,12 +85,11 @@ export default class ProjectService extends Service {
                 throw new CustomError(alreadyMember)
             }
 
-            const projectMeberRel = await ProjectMember.create({ data: dataRelUserProject })
+            const projectMeberRel = await _ProjectMember.create({ data: dataRelUserProject })
 
             return projectMeberRel
 
         } catch (err: any) {
-            console.log(err)
             if (err instanceof CustomError)
                 throw err
 
@@ -98,7 +99,33 @@ export default class ProjectService extends Service {
     }
 
 
+    public findByUQ = (where: Prisma.ProjectWhereUniqueInput): Promise<Project | null> => _Project.findUnique({ where })
+    public findOne = (where: Prisma.ProjectWhereInput): Promise<Project | null> => _Project.findFirst({ where });
+    public findAll = (where: Prisma.ProjectWhereInput): Promise<Project[] | null> => _Project.findMany({ where })
 
-    static findOne = (where: Partial<Project>) => Project.findFirst({ where });
-    static findAll = (where: Partial<Project>) => Project.findMany({ where })
+    public async getDetails(code_id: string) {
+
+        try {
+            return await _Project.findUnique({
+                where: { code_id },
+                include: {
+                    members: {
+                        select: {
+                            role: true,
+                            user: {
+                                select: {
+                                    username: true,
+                                    email: true
+                                }
+                            }
+                        },
+                    }
+                }
+            })
+        } catch (err: any) {
+            throw this.possibleError
+        }
+    }
+
+
 }

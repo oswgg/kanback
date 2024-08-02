@@ -2,8 +2,10 @@ import { Request, Response, NextFunction } from 'express'
 import { ForbiddenErrorFactory } from '../../../utils/interfaces/ErrorInterfaces'
 import { CustomError } from '../../../utils/middlewares/ErrorHandler'
 import { AddMemberPayload } from '../schemas/addMemberPayload'
-import ProjectService from '../services/projectService'
 import { $Enums } from '@prisma/client'
+import ProjectServiceClass from '../services/projectService'
+
+const ProjectService = new ProjectServiceClass()
 
 export default {
     getAllProjects: async (req: Request, res: Response, next: NextFunction) => {
@@ -30,6 +32,27 @@ export default {
             })
 
         } catch (err: any) {
+            if (err instanceof CustomError)
+                return next(err)
+
+            return next(new CustomError(null, err.message))
+        }
+    },
+
+
+    getDetails: async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const { params: { project_code_id } } = req
+
+            const content = await ProjectService.getDetails(project_code_id)
+
+            return res.status(200).json({
+                ok: true,
+                content
+            })
+
+        } catch (err: any) {
+            console.log(err)
             if (err instanceof CustomError)
                 return next(err)
 
@@ -76,8 +99,6 @@ export default {
                 return next(err)
 
             return next(new CustomError(null, err.message))
-
-
         }
     },
 
@@ -109,8 +130,6 @@ export default {
                 return next(err)
 
             return next(new CustomError(null, err.message))
-
-
         }
     },
 }

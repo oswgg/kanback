@@ -25,6 +25,12 @@ export default (app: Router) => {
         projectController.getAllProjects
     )
 
+    router.get(
+        '/detail/:project_code_id',
+        CheckUserIsLoggedMiddleware,
+        projectController.getDetails
+    )
+
     router.post(
         '/new',
         CheckUserIsLoggedMiddleware,
