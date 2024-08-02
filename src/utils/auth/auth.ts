@@ -3,9 +3,11 @@ import { Strategy } from 'passport-local'
 import { Strategy as JWT_Strategy, ExtractJwt, StrategyOptionsWithoutRequest } from 'passport-jwt'
 import { CustomError } from '../middlewares/ErrorHandler'
 import { ForbiddenErrorFactory, NotFoundErrorFactory } from '../interfaces/ErrorInterfaces'
-import UserService from '../../modules/User/services/userService'
+import UserServiceClass from '../../modules/User/services/userService'
 import config from '../../config'
 import { isValidPassword } from '../helpers'
+
+const UserService = new UserServiceClass()
 
 passport.use('login',
     new Strategy({ usernameField: 'email', passwordField: 'password' },

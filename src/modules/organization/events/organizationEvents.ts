@@ -1,6 +1,7 @@
 import EventEmitter from "events";
-import UserService from "../../User/services/userService";
+import UserServiceClass from "../../User/services/userService";
 
+const UserService = new UserServiceClass()
 const organizationEvents = new EventEmitter()
 
 
