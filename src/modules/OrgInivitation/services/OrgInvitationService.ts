@@ -3,23 +3,22 @@ import { ErrorFactory, ForbiddenErrorFactory, NotFoundErrorFactory } from "../..
 import { CustomError } from "../../../utils/middlewares/ErrorHandler"
 import { generateRandomString } from "../../../utils/helpers"
 import orgInvitationEvents from "../events/invitationEvents"
+import Service from "../../../utils/interfaces/ServiceInterface"
 
 const prisma = new PrismaClient()
 
 const Invitation = prisma.orgInvitationCodes
 const Organization = prisma.organization
 
-export default class OrgInvitationService {
-    static possibleError = new ErrorFactory(
-        500,
-        "Internal server error",
-    )
+export default class OrgInvitationService extends Service {
 
+    constructor() {
+        super()
+    }
 
-    static async createInvitation(data: { body: any, user: User }) {
+    public async createInvitation(data: { body: any, user: User }) {
         try {
             const { user, body } = data
-            console.log(user)
             if (!user.organization_uuid) {
                 const userNotOrg = new ErrorFactory(
                     406,
@@ -63,7 +62,7 @@ export default class OrgInvitationService {
     }
 
 
-    static async joinOrganization(org_name: string, invitation_code: string, user: User) {
+    public async joinOrganization(org_name: string, invitation_code: string, user: User) {
         try {
             const invitationReg = await Invitation.findFirst({ where: { organization_name: org_name, code: invitation_code } })
 
@@ -128,10 +127,7 @@ export default class OrgInvitationService {
     }
 
 
-    static findByUQ = async (where: Prisma.OrgInvitationCodesWhereUniqueInput): Promise<OrgInvitationCodes | null> => {
-        const invitation = await Invitation.findUnique({ where });
-        return invitation;
-    }
+    public findByUQ = async (where: Prisma.OrgInvitationCodesWhereUniqueInput): Promise<OrgInvitationCodes | null> => Invitation.findUnique({ where })
 
 
 }

@@ -1,7 +1,9 @@
 import { Response, NextFunction, Request } from 'express'
 import { CustomError } from '../../../utils/middlewares/ErrorHandler'
 import { User } from '@prisma/client'
-import OrgInvitationService from '../services/OrgInvitationService'
+import OrgInvitationServiceClass from '../services/OrgInvitationService'
+
+const OrgInvitationService = new OrgInvitationServiceClass()
 
 export default {
     createInvitation: async (req: Request, res: Response, next: NextFunction) => {
@@ -14,7 +16,7 @@ export default {
 
             const content = await OrgInvitationService.createInvitation(dataForService)
 
-            return res.status(200).json({
+            return res.status(201).json({
                 ok: true,
                 content
             })

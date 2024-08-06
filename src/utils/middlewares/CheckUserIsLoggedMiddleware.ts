@@ -3,7 +3,7 @@ import { CustomError } from "./ErrorHandler"
 import passport from "passport"
 import { ErrorFactory } from "../interfaces/ErrorInterfaces"
 
-const AuthorizationMiddleware = (req: Request, res: Response, next: NextFunction) => {
+const CheckUserIsLoggedMiddleware = (req: Request, res: Response, next: NextFunction) => {
     passport.authenticate('jwt_auth', (err: any, user: any, info: any) => {
         try {
             if (info) {
@@ -47,7 +47,10 @@ const AuthorizationMiddleware = (req: Request, res: Response, next: NextFunction
                 throw err
 
             delete user.password
+
             req.user = user
+            req.authUser = user
+
             next()
         } catch (err: any) {
             if (err instanceof CustomError)
@@ -58,4 +61,4 @@ const AuthorizationMiddleware = (req: Request, res: Response, next: NextFunction
     })(req, res, next)
 }
 
-export default AuthorizationMiddleware
+export default CheckUserIsLoggedMiddleware

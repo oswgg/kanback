@@ -3,11 +3,17 @@ import { UserSignup } from '../schemas/signup'
 import { CustomError } from '../../../utils/middlewares/ErrorHandler'
 import { DuplicatedErrorFactory } from '../../../utils/interfaces/ErrorInterfaces'
 import { hashPassword } from '../../../utils/helpers'
+import Service from '../../../utils/interfaces/ServiceInterface'
 
-const User = new PrismaClient().user
-export default class UserService {
+const prisma = new PrismaClient()
+const User = prisma.user
 
-    static async signUp(data: UserSignup) {
+export default class UserService extends Service {
+    constructor() {
+        super()
+    }
+
+    public async signUp(data: UserSignup) {
         try {
             const { username, email, first_name, last_name, age, sex, password, password_confirmation } = data
 
@@ -41,14 +47,14 @@ export default class UserService {
         }
     }
 
-    static createOrganization = async (id: number, organization_uuid: string) =>
+    public createOrganization = async (id: number, organization_uuid: string) =>
         await User.update({ where: { id }, data: { organization_uuid, role: $Enums.OrgRole.admin } })
 
-    static joinToOrganization = async (id: number, organization_uuid: string) =>
+    public joinToOrganization = async (id: number, organization_uuid: string) =>
         await User.update({ where: { id }, data: { organization_uuid, role: $Enums.OrgRole.member } }).then(res => res)
 
 
-    static async findOneBy(where: any) {
+    public async findOneBy(where: any) {
         return await User.findUnique({ where })
     }
 

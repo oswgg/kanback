@@ -2,7 +2,7 @@ import { Router } from 'express'
 const router = Router()
 
 // ----------- MIDDLEWARES ---------
-import AuthorizationMiddleware from '../../utils/middlewares/AuthorizationMiddleware'
+import CheckUserIsLoggedMiddleware from '../../utils/middlewares/CheckUserIsLoggedMiddleware'
 import SchemaValidation from '../../utils/middlewares/SchemaValidation'
 
 // ----------- CONTROLLER ----------
@@ -19,14 +19,14 @@ export default (app: Router) => {
 
     router.post(
         '/invite',
-        AuthorizationMiddleware,
+        CheckUserIsLoggedMiddleware,
         SchemaValidation(inviteSchema),
         orgInvController.createInvitation
     )
 
     router.get(
         '/join-us/:org_name/:invitation_code',
-        AuthorizationMiddleware,
+        CheckUserIsLoggedMiddleware,
         orgInvController.joinOrganization
     )
 

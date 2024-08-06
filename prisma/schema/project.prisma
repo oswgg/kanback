@@ -1,0 +1,37 @@
+model Project {
+    code_id           String   @id @db.VarChar(8)
+    organization_uuid String   @db.VarChar(36)
+    name              String   @db.VarChar(100)
+    image_url         String?
+    description       String?  @db.MediumText
+    welcome_text      String?  @db.MediumText
+    created_by_user   Int
+    created_at        DateTime @default(now())
+
+    // Belongs
+    organization Organization @relation(fields: [organization_uuid], references: [uuid])
+    user         User         @relation(fields: [created_by_user], references: [id])
+
+    // Has
+    members ProjectMember[]
+
+    @@map("projects")
+}
+
+model ProjectMember {
+    project_code_id String             @db.VarChar(8)
+    user_id         Int
+    role            ProjectMemberTypes
+
+    // Belongs
+    project Project @relation(fields: [project_code_id], references: [code_id])
+    user    User    @relation(fields: [user_id], references: [id])
+
+    @@unique(fields: [project_code_id, user_id])
+    @@map("project_members")
+}
+
+enum ProjectMemberTypes {
+    admin
+    member
+}

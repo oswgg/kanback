@@ -3,9 +3,11 @@ import { Strategy } from 'passport-local'
 import { Strategy as JWT_Strategy, ExtractJwt, StrategyOptionsWithoutRequest } from 'passport-jwt'
 import { CustomError } from '../middlewares/ErrorHandler'
 import { ForbiddenErrorFactory, NotFoundErrorFactory } from '../interfaces/ErrorInterfaces'
-import UserService from '../../modules/User/services/userService'
+import UserServiceClass from '../../modules/User/services/userService'
 import config from '../../config'
 import { isValidPassword } from '../helpers'
+
+const UserService = new UserServiceClass()
 
 passport.use('login',
     new Strategy({ usernameField: 'email', passwordField: 'password' },
@@ -53,10 +55,7 @@ const optsForJwt: StrategyOptionsWithoutRequest = {
 passport.use("jwt_auth",
     new JWT_Strategy(optsForJwt, async (jwt_payload: any, done: any) => {
         try {
-            console.log(jwt_payload)
             const user = await UserService.findOneBy({ id: jwt_payload.user.id })
-
-            console.log(user)
 
             if (!user) {
                 const notFoundUser = new NotFoundErrorFactory(

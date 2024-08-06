@@ -18,6 +18,9 @@ model Organization {
 
     users            User[]
     invitation_codes OrgInvitationCodes[]
+    projects         Project[]
+
+    @@map("organizations")
 }
 
 model OrgInvitationCodes {
@@ -32,4 +35,5 @@ model OrgInvitationCodes {
     user         User?        @relation(fields: [id_user_claimed], references: [id])
 
     @@id([organization_uuid, code])
+    @@map("org_invitation_codes")
 }

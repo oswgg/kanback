@@ -2,14 +2,18 @@ import { PrismaClient, User } from "@prisma/client";
 import { ForbiddenErrorFactory } from "../../../utils/interfaces/ErrorInterfaces";
 import { CustomError } from "../../../utils/middlewares/ErrorHandler";
 import organizationEvents from "../events/organizationEvents";
+import Service from "../../../utils/interfaces/ServiceInterface";
 
 const prisma = new PrismaClient();
 
 const Organization = prisma.organization
 
-export default class OrganizationService {
+export default class OrganizationService extends Service {
+    constructor() {
+        super()
+    }
 
-    static async create(body: any, user: User) {
+    public async create(body: any, user: User) {
         try {
             if (user.organization_uuid !== null) {
                 const userHasOrg = new ForbiddenErrorFactory(
@@ -35,7 +39,7 @@ export default class OrganizationService {
 
 
 
-    static findOneBy = (where: any) => Organization.findUnique({ where })
+    public findOneBy = (where: any) => Organization.findUnique({ where })
 
 
 }

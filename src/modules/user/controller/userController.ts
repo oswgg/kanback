@@ -1,6 +1,8 @@
 import { NextFunction, Request, Response } from 'express'
 import { CustomError } from '../../../utils/middlewares/ErrorHandler'
-import UserService from '../services/userService'
+import UserServiceClass from '../services/userService'
+
+const UserService = new UserServiceClass()
 
 export default {
     signup: async (req: Request, res: Response, next: NextFunction) => {
@@ -8,7 +10,7 @@ export default {
             const { body } = req
             const result = await UserService.signUp(body)
 
-            return res.status(200).json({
+            return res.status(201).json({
                 ok: true,
                 content: result
             })
