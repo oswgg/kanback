@@ -19,7 +19,9 @@ model Organization {
     users            User[]
     invitation_codes OrgInvitationCodes[]
     projects         Project[]
+    teams            Team[]
 
+    // Has
     @@map("organizations")
 }
 
