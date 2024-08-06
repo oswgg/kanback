@@ -44,7 +44,7 @@ export default {
         try {
             const { params: { project_code_id } } = req
 
-            const content = await ProjectService.getDetails(project_code_id)
+            const content = await ProjectService.getDetailsOfProject(project_code_id)
 
             return res.status(200).json({
                 ok: true,

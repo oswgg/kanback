@@ -103,8 +103,7 @@ export default class ProjectService extends Service {
     public findOne = (where: Prisma.ProjectWhereInput): Promise<Project | null> => _Project.findFirst({ where });
     public findAll = (where: Prisma.ProjectWhereInput): Promise<Project[] | null> => _Project.findMany({ where })
 
-    public async getDetails(code_id: string) {
-
+    public async getDetailsOfProject(code_id: string) {
         try {
             return await _Project.findUnique({
                 where: { code_id },
