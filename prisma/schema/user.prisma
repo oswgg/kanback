@@ -13,11 +13,15 @@ model User {
     image_url         String?
     created_at        DateTime @default(now())
 
+    // Belongs
+    organization Organization? @relation(fields: [organization_uuid], references: [uuid])
+
     // Has
-    organization    Organization?       @relation(fields: [organization_uuid], references: [uuid])
     invitation_code OrgInvitationCodes?
     createdProjects Project[]
     joinedProjects  ProjectMember[]
+    TeamMember      TeamMember[]
+    tasks           Task[]
 
     @@map("users")
 }

@@ -14,6 +14,8 @@ model Project {
 
     // Has
     members ProjectMember[]
+    teams   Team[]
+    tasks   Task[]
 
     @@map("projects")
 }
@@ -31,7 +33,77 @@ model ProjectMember {
     @@map("project_members")
 }
 
+model Team {
+    code_id           String   @id @db.VarChar(8)
+    organization_uuid String   @db.VarChar(36)
+    project_code_id   String   @db.VarChar(8)
+    name              String   @db.VarChar(100)
+    image_url         String?
+    created_at        DateTime @default(now())
+
+    // Belongs
+    organization Organization @relation(fields: [organization_uuid], references: [uuid])
+    project      Project      @relation(fields: [project_code_id], references: [code_id])
+
+    // Has
+    members TeamMember[]
+    tasks   Task[]
+
+    @@map("teams")
+}
+
+model TeamMember {
+    team_code_id String          @db.VarChar(8)
+    user_id      Int
+    role         TeamMemberTypes
+
+    // Belongs
+    team Team @relation(fields: [team_code_id], references: [code_id])
+    user User @relation(fields: [user_id], references: [id])
+
+    @@unique([team_code_id, user_id])
+    @@map("team_members")
+}
+
+model Task {
+    uuid                String        @id @default(uuid())
+    project_code_id     String        @db.VarChar(8)
+    team_code_id        String        @db.VarChar(8)
+    id_user_responsible Int
+    title               String        @db.VarChar(100)
+    description         String?       @db.MediumText
+    begin_date          DateTime?
+    due_date            DateTime?
+    priority            TaskPriority?
+    status              TaskStatus    @default(pending)
+
+    // Belongs
+    project Project @relation(fields: [project_code_id], references: [code_id])
+    team    Team    @relation(fields: [team_code_id], references: [code_id])
+    user    User    @relation(fields: [id_user_responsible], references: [id])
+
+    @@map("tasks")
+}
+
 enum ProjectMemberTypes {
     admin
     member
+}
+
+enum TeamMemberTypes {
+    admin
+    manager
+    member
+}
+
+enum TaskPriority {
+    low
+    medium
+    high
+}
+
+enum TaskStatus {
+    pending
+    in_progress
+    completed
 }
